@@ -1,0 +1,24 @@
+﻿let m,em,er,
+mf=chrome.runtime.getManifest(),
+vk={url:mf.permissions.slice(0,2)},
+menu=(t,h)=>chrome.contextMenus.create({title:chrome.i18n.getMessage(t),contexts:['browser_action'],onclick:h}),
+icon=e=>{
+	chrome.browserAction.setTitle({title:mf.short_name+': '+chrome.i18n.getMessage(['on','off','err'][e])});
+	if(icon[e])chrome.browserAction.setIcon({path:icon[e]});else{
+		let i=new Image(), c=document.createElement('canvas'), x=c.getContext('2d'), s=16*devicePixelRatio;c.height=c.width=s;
+		i.src=URL.createObjectURL(new Blob(['<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><mask id="a"><circle cx="24" cy="24" r="24" fill="#fff"/></mask><linearGradient id="b" x1="1" x2="0" y1="0" y2="1"><stop offset=".1" stop-color="#7A00F4"/><stop offset=".5" stop-color="#0038F2"/><stop offset=".9" stop-color="#00F9F9"/></linearGradient><linearGradient id="c" x1="0" x2="1" y1="0" y2="1"><stop offset=".1" stop-color="#00F9F9"/><stop offset=".5" stop-color="#00EF33"/><stop offset=".9" stop-color="#FF0"/></linearGradient><linearGradient id="d" x1="1" x2="0" y1="0" y2="1"><stop offset=".1" stop-color="#F70000"/><stop offset=".5" stop-color="#FF6A00"/><stop offset=".9" stop-color="#FF0"/></linearGradient><linearGradient id="e" x1="0" x2="1" y1="0" y2="1"><stop offset=".1" stop-color="#7A00F4"/><stop offset=".5" stop-color="#EA00A8"/><stop offset=".9" stop-color="#F70000"/></linearGradient><g mask="url(#a)"><path fill="'+ (e?'url(#b)':'#2787F5') +'" d="M0 0h24v24H0"/><path fill="'+ (e?'url(#c)':'#2787F5') +'" d="M0 24h24v24H0"/><path fill="'+ (e?'url(#d)':'#2787F5') +'" d="M24 24h24v24H24"/><path fill="'+ (e?'url(#e)':'#2787F5') +'" d="M24 0h24v24H24"/></g><circle cx="24" cy="24" r="'+ (e?'21':'0') +'" fill="#222"/>'+ (e==2?'<path stroke="#fff" stroke-width="4" stroke-linecap="square" d="M10 16v18h6m-2-9h1m-1-9h2m7 8h4m-4 0v10m11-10h4m-4 0v10"/>':'<path fill="#fff" d="M12 15q1.2 0 1.5 1.2 3 7.9 5.5 9.4 1 .4 1-.9v-5.5q0-1.5-1-2.6-.6-.6-.3-1.2.3-.4.8-.4H25q1 0 1 1v7.1q0 1.5 1 1 2.5-1.6 5.4-8 .4-1 1.5-1.1h3.7q1.2 0 1 1-.5 2.5-4.8 8.4-.6.8 0 1.4 5 5 5.5 7 .3 1.2-1.4 1.2h-3.6q-.7 0-1.6-1-4.3-4.7-5.8-4.7-.9 0-.9 1v3.5q0 1.4-3 1.2-9.5-.8-15.3-16.1-1-2.9.5-2.9"/>') +'</svg>'],{type:'image/svg+xml'}));
+		i.onload=()=>{x.drawImage(i,0,0,s,s);URL.revokeObjectURL(i.src);icon[e]=c.toDataURL();chrome.browserAction.setIcon({path:icon[e]})}
+	}
+},
+j=(e,k)=>chrome.tabs.query(vk,t=>(k==1?[t[0]]:k?t.filter(t=>k==t.id):t).forEach(t=>chrome.tabs.executeScript(t.id,{code:`(s=>{s.textContent="${e}";document.head.append(s);s.remove()})(document.createElement('script'))`}))),
+t=e=>{
+	let v,c=(a='',b='')=>{a=a.split('.');b=b.split('.');for(let i=0,m=Math.max(a.length,b.length);i<m;i++){let n=(i<m-1?'':'.')+(a[i]||0),o=(i<m-1?'':'.')+(b[i]||0);if(o>n)return 0;if(n>o)return 1}return 0},
+	o=e?{mode:m=e.mode!=undefined?e.mode:1, v:(v=c(mf.version,e.v))?mf.version:e.v, C:v?0:e.C, S:v?0:e.S}:{mode:m=+!m};
+	e?(em=e.em<=0, v&&j('location.reload()'), menu('reset',()=>j('window.st?st.ss():(localStorage.clear(),sessionStorage.clear(),location.reload())')), menu('appReset',()=>{j('localStorage.clear(),sessionStorage.clear(),indexedDB.deleteDatabase(`st`)',1);setTimeout(e=>{chrome.storage.local.clear();chrome.storage.sync.clear();chrome.contextMenus.removeAll();chrome.runtime.reload()},100)})):j('window.st?st.m('+ m +'):location.reload()');
+	icon(er?2:m);chrome.storage.local.set(o);chrome.storage.sync.set(o)
+};
+chrome.storage.local.get(null,a=>{a&&a.v?t(a):chrome.storage.sync.get(null,e=>e&&(e.ia1&&(e.ia+=e.ia1,delete e.ia1,chrome.storage.sync.remove('ia1')),chrome.storage.local.set(e),t(e))),er=!a});
+chrome.browserAction.onClicked.addListener(()=>er?er=chrome.tabs.create({url:'https://vk.com/@2style-err'},()=>icon(m)):chrome.tabs.query(vk,e=>e[0]?e.find(e=>e.active)?t():chrome.tabs.update(e[0].id,{active:true}):chrome.tabs.create({url:'https://vk.com',index:0})));
+chrome.webRequest.onBeforeRequest.addListener(r=>{let u=r.url.replace(/(emoji\/[^\.]+).png|gift\/(\d+)\/(\d+).jpg|sticker\/(\d+)(-\d+-)(\d+)[w|b]?(\?\d|)$|(\d)\.json(\?\d|)$/,(a,b,c,d,e,f,g,h,i,j)=>b?b+(em||/_2x$/.test(b)?'.png':'_2x.png'):c?+c>745||d==96?'gift/'+c+'/'+d+'.png':a:g?'sticker/'+e+f+(g==64&&!em?128:g)+(e==4?'':'b')+h:i+'b.json'+j);return m?/\/images\/(contact|community_|mobile\/multichat|icons\/im_multichat_|lnk|deactivated_|camera_|dquestion_i|vkapp_)/.test(r.url)?{redirectUrl:chrome.runtime.getURL('i/c.svg')}:u==r.url?{cancel:!1}:{redirectUrl:u}:{cancel:!1}},{urls:['https://vk.com/emoji/*','https://vk.com/images/*','https://vk.com/sticker/*']},['blocking']);
+chrome.commands.onCommand.addListener((e,t)=>e=='eye'?chrome.permissions.request({permissions:['activeTab']},()=>chrome.tabs.captureVisibleTab(e=>j(`st.eye('${e}')`,t.id))):j(`st.k('${e}')`,1));
+chrome.runtime.setUninstallURL('https://vk.com/@2style-uninstall');
